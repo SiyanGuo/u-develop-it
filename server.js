@@ -37,6 +37,7 @@ app.get('/api/candidates', (req, res) => {
     });
 });
 
+
 //get a single candidate
 app.get('/api/candidate/:id', (req, res) => {
     const sql = `SELECT * FROM candidates WHERE id = ?`;
@@ -47,11 +48,17 @@ app.get('/api/candidate/:id', (req, res) => {
             res.status(400).json({ error: err.message });
             return;
         };
-        res.json({
-            message: 'success',
-            data: row
-        });
-    });
+        if (row.length === 0) {
+            res.json({
+                message: 'Candidate not found'
+            });
+        } else {
+            res.json({
+                message: 'success',
+                data: row
+            });
+        }
+    })
 });
 
 //delete a candidate 
@@ -62,7 +69,7 @@ app.delete('/api/candidate/:id', (req, res) => {
 
     db.query(sql, params, (err, result) => {
         if (err) {
-            res.statusMessage(400).json({ error: res.message });
+            res.status(400).json({ error: res.message });
         } else if (!result.affectedRows) {
             res.json({
                 message: 'Candidate not found'
@@ -90,6 +97,7 @@ VALUES (?,?,?)`;
     db.query(sql, params, (err, result) => {
         if (err) {
             res.status(400).json({ error: err.message });
+            return;
         }
         res.json({
             message: 'success',
